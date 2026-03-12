@@ -43,7 +43,7 @@ A comprehensive REST API for managing mentorship relationships, lesson bookings,
 1. **Clone the repository**:
 
 ```bash
-git clone <repository-url>
+git clone [<repository-url>](https://github.com/superio007/MENTORA-Backend-Task.git)
 cd mentorship-platform-backend
 ```
 
