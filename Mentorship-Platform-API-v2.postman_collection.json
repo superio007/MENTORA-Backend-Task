@@ -1,0 +1,675 @@
+{
+  "info": {
+    "name": "Mentorship Platform API v2",
+    "description": "Complete REST API for mentorship platform with role-based access control. Updated with console logging and enhanced testing.",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "item": [
+    {
+      "name": "🔐 Authentication",
+      "item": [
+        {
+          "name": "1. Register User",
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"parent@example.com\",\n  \"password\": \"securepassword123\",\n  \"role\": \"parent\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/register",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "register"]
+            },
+            "description": "Register a new user account with email, password, and role (parent, student, or mentor)"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Login",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"token\", jsonData.token);",
+                  "    pm.environment.set(\"user_id\", jsonData.user.id);",
+                  "    pm.environment.set(\"user_role\", jsonData.user.role);",
+                  "    console.log(\"✅ Token saved: \" + jsonData.token.substring(0, 20) + \"...\");",
+                  "    console.log(\"✅ User ID saved: \" + jsonData.user.id);",
+                  "    console.log(\"✅ User role: \" + jsonData.user.role);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"email\": \"parent@example.com\",\n  \"password\": \"securepassword123\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/auth/login",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "login"]
+            },
+            "description": "Authenticate a user and obtain a JWT token"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Current User",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/auth/me",
+              "host": ["{{base_url}}"],
+              "path": ["auth", "me"]
+            },
+            "description": "Get current authenticated user information"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "👥 Students",
+      "item": [
+        {
+          "name": "1. Create Student",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"student_id\", jsonData.id);",
+                  "    console.log(\"✅ Student created: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"John Doe\",\n  \"email\": \"john@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/students",
+              "host": ["{{base_url}}"],
+              "path": ["students"]
+            },
+            "description": "Create a new student account (Parent only)"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get All Students",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students",
+              "host": ["{{base_url}}"],
+              "path": ["students"]
+            },
+            "description": "List all students for the authenticated parent"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Student by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/{{student_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["students", "{{student_id}}"]
+            },
+            "description": "Get a specific student by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Update Student",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"name\": \"Jane Doe\",\n  \"email\": \"jane@example.com\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/students/{{student_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["students", "{{student_id}}"]
+            },
+            "description": "Update a student (Parent owner only)"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Delete Student",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/students/{{student_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["students", "{{student_id}}"]
+            },
+            "description": "Delete a student (Parent owner only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📚 Lessons",
+      "item": [
+        {
+          "name": "1. Create Lesson",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"lesson_id\", jsonData.id);",
+                  "    console.log(\"✅ Lesson created: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced JavaScript\",\n  \"description\": \"Learn advanced JavaScript concepts\",\n  \"capacity\": 20\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lessons",
+              "host": ["{{base_url}}"],
+              "path": ["lessons"]
+            },
+            "description": "Create a new lesson (Mentor only)"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get All Lessons",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lessons?page=1&limit=10",
+              "host": ["{{base_url}}"],
+              "path": ["lessons"],
+              "query": [
+                {
+                  "key": "page",
+                  "value": "1"
+                },
+                {
+                  "key": "limit",
+                  "value": "10"
+                }
+              ]
+            },
+            "description": "List all lessons with pagination (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Lesson by ID",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lessons/{{lesson_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lessons", "{{lesson_id}}"]
+            },
+            "description": "Get a specific lesson by ID (Public endpoint)"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Get Lesson Sessions",
+          "request": {
+            "method": "GET",
+            "header": [],
+            "url": {
+              "raw": "{{base_url}}/lessons/{{lesson_id}}/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["lessons", "{{lesson_id}}", "sessions"]
+            },
+            "description": "Get all sessions for a specific lesson"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Update Lesson",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"title\": \"Advanced JavaScript - Updated\",\n  \"description\": \"Updated description\",\n  \"capacity\": 25\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/lessons/{{lesson_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lessons", "{{lesson_id}}"]
+            },
+            "description": "Update a lesson (Mentor owner only)"
+          },
+          "response": []
+        },
+        {
+          "name": "6. Delete Lesson",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/lessons/{{lesson_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["lessons", "{{lesson_id}}"]
+            },
+            "description": "Delete a lesson (Mentor owner only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "📅 Bookings",
+      "item": [
+        {
+          "name": "1. Create Booking",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"booking_id\", jsonData.id);",
+                  "    console.log(\"✅ Booking created: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"studentId\": \"{{student_id}}\",\n  \"lessonId\": \"{{lesson_id}}\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            },
+            "description": "Create a booking (Parent only)"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get All Bookings",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings",
+              "host": ["{{base_url}}"],
+              "path": ["bookings"]
+            },
+            "description": "List bookings (filtered by role)"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Delete Booking",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/bookings/{{booking_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["bookings", "{{booking_id}}"]
+            },
+            "description": "Cancel a booking"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "⏰ Sessions",
+      "item": [
+        {
+          "name": "1. Create Session",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 201) {",
+                  "    var jsonData = pm.response.json();",
+                  "    pm.environment.set(\"session_id\", jsonData.id);",
+                  "    console.log(\"✅ Session created: \" + jsonData.id);",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"lessonId\": \"{{lesson_id}}\",\n  \"scheduledAt\": \"2024-03-15T14:00:00Z\",\n  \"durationMinutes\": 60,\n  \"notes\": \"Optional session notes\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["sessions"]
+            },
+            "description": "Create a session (Mentor only)"
+          },
+          "response": []
+        },
+        {
+          "name": "2. Get All Sessions",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/sessions",
+              "host": ["{{base_url}}"],
+              "path": ["sessions"]
+            },
+            "description": "List sessions for the authenticated mentor's lessons"
+          },
+          "response": []
+        },
+        {
+          "name": "3. Get Session by ID",
+          "request": {
+            "method": "GET",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/sessions/{{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["sessions", "{{session_id}}"]
+            },
+            "description": "Get a specific session by ID"
+          },
+          "response": []
+        },
+        {
+          "name": "4. Update Session",
+          "request": {
+            "method": "PUT",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"scheduledAt\": \"2024-03-15T15:00:00Z\",\n  \"durationMinutes\": 90,\n  \"notes\": \"Updated notes\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/sessions/{{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["sessions", "{{session_id}}"]
+            },
+            "description": "Update a session (Mentor owner only)"
+          },
+          "response": []
+        },
+        {
+          "name": "5. Delete Session",
+          "request": {
+            "method": "DELETE",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              }
+            ],
+            "url": {
+              "raw": "{{base_url}}/sessions/{{session_id}}",
+              "host": ["{{base_url}}"],
+              "path": ["sessions", "{{session_id}}"]
+            },
+            "description": "Delete a session (Mentor owner only)"
+          },
+          "response": []
+        }
+      ]
+    },
+    {
+      "name": "🤖 LLM",
+      "item": [
+        {
+          "name": "Summarize Text",
+          "event": [
+            {
+              "listen": "test",
+              "script": {
+                "exec": [
+                  "if (pm.response.code === 200) {",
+                  "    var jsonData = pm.response.json();",
+                  "    console.log(\"✅ Summary generated\");",
+                  "    console.log(\"📝 Summary: \" + jsonData.summary.substring(0, 100) + \"...\");",
+                  "    console.log(\"📊 Word count: \" + jsonData.wordCount);",
+                  "    console.log(\"🔹 Bullet points: \" + (jsonData.bulletPoints ? jsonData.bulletPoints.length : 0));",
+                  "}"
+                ]
+              }
+            }
+          ],
+          "request": {
+            "method": "POST",
+            "header": [
+              {
+                "key": "Authorization",
+                "value": "Bearer {{token}}"
+              },
+              {
+                "key": "Content-Type",
+                "value": "application/json"
+              }
+            ],
+            "body": {
+              "mode": "raw",
+              "raw": "{\n  \"text\": \"JavaScript is a versatile programming language that powers interactive web applications. It runs in browsers and can also be used on servers with Node.js. JavaScript supports both functional and object-oriented programming paradigms. The language has evolved significantly with ES6 introducing classes, arrow functions, and modules. Modern JavaScript frameworks like React, Vue, and Angular have revolutionized web development. Asynchronous programming with promises and async/await makes handling operations like API calls more manageable. JavaScript's flexibility and widespread adoption make it one of the most popular programming languages today.\"\n}"
+            },
+            "url": {
+              "raw": "{{base_url}}/llm/summarize",
+              "host": ["{{base_url}}"],
+              "path": ["llm", "summarize"]
+            },
+            "description": "Generate a text summary using AI (Authenticated users only)"
+          },
+          "response": []
+        }
+      ]
+    }
+  ],
+  "variable": [
+    {
+      "key": "base_url",
+      "value": "http://localhost:3000",
+      "type": "string"
+    },
+    {
+      "key": "token",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "user_role",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "student_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "lesson_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "booking_id",
+      "value": "",
+      "type": "string"
+    },
+    {
+      "key": "session_id",
+      "value": "",
+      "type": "string"
+    }
+  ]
+}
